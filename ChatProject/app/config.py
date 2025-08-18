@@ -1,17 +1,18 @@
-from pydantic import BaseSettings
+from pathlib import Path
+from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     DB_HOST: str
-    DB_PORT: str
+    DB_PORT: int
     DB_USER: str
     DB_PASS: str
     DB_NAME: str
-
-    SECRET_KEY: str = "hz"
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    SECRET_KEY: str
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
 
     class Config:
-        env_file = ".env"
+        env_file = Path(__file__).parent / ".env"
+        env_file_encoding = "utf-8"
 
 settings = Settings()
