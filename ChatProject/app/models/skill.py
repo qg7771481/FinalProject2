@@ -1,6 +1,13 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from app.database import Base
+
+user_skills = Table(
+    "user_skills",
+    Base.metadata,
+    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+    Column("skill_id", Integer, ForeignKey("skills.id"), primary_key=True),
+)
 
 class Skill(Base):
     __tablename__ = "skills"
@@ -8,15 +15,5 @@ class Skill(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, nullable=False)
 
-    users = relationship("UserSkill", back_populates="skill")
+    users = relationship("User", secondary=user_skills, back_populates="skills")
 
-
-class UserSkill(Base):
-    __tablename__ = "user_skills"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    skill_id = Column(Integer, ForeignKey("skills.id"))
-
-    user = relationship("User", back_populates="skills")
-    skill = relationship("Skill", back_populates="users")
