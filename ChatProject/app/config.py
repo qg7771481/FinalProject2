@@ -1,5 +1,7 @@
 from pathlib import Path
-from pydantic_settings import BaseSettings
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 class Settings(BaseSettings):
     DB_HOST: str
@@ -11,8 +13,9 @@ class Settings(BaseSettings):
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
 
-    class Config:
-        env_file = Path(__file__).parent / ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+        env_file=Path(__file__).parent / ".env", env_file_encoding="utf-8"
+    )
+
 
 settings = Settings()

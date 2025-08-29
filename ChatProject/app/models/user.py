@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime, func
 from sqlalchemy.orm import relationship
 from app.database import Base
 from app.models.skill import Skill, user_skills
@@ -12,8 +12,10 @@ class User(Base):
     username = Column(String, unique=True, nullable=False, index=True)
     email = Column(String, unique=True, nullable=False, index=True)
     password_hash = Column(String, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    skills = relationship("Skill", secondary=user_skills, back_populates="users")
+    skills = relationship("Skill", secondary="user_skills", back_populates="users")
+
 
     messages_sent = relationship(
         "Message",
