@@ -10,7 +10,26 @@ from app.utils.dependencies import get_current_user
 router = APIRouter(prefix="/chat", tags=["Chat"])
 
 
-@router.post("/send", response_model=MessageRead, summary="Відправити повідомлення")
+@router.post(
+    "/send",
+    response_model=MessageRead,
+    summary="Відправити повідомлення",
+    description="""
+Надсилає повідомлення від **поточного авторизованого користувача** іншому користувачу.
+
+- Перевіряє, чи існує отримувач (`receiver_id`).
+- Якщо отримувача не знайдено — повертає помилку `404`.
+- Якщо все добре — створює повідомлення і повертає його дані.
+""",
+    responses={
+        200: {
+            "description": "Повідомлення успішно надіслано",
+            "model": MessageRead
+        },
+        401: {"description": "Неавторизований запит (немає або неправильний токен)"},
+        404: {"description": "Отримувача не знайдено"},
+    },
+)
 def send_message(
         msg: MessageCreate,
         db: Session = Depends(get_db),
@@ -32,8 +51,25 @@ def send_message(
                        timestamp=message.timestamp, content=message.content)
 
 
-@router.get("/messages/{user_id}", response_model=list[MessageRead],
-            summary="Отримати історію повідомлень з користувачем")
+@router.get(
+    "/messages/{user_id}",
+    response_model=list[MessageRead],
+    summary="Отримати історію повідомлень з користувачем",
+    description="""
+Повертає список усіх повідомлень між **поточним користувачем** та користувачем з `user_id`.
+
+- Повертає повідомлення у хронологічному порядку (`timestamp`).
+- Не включає повідомлення, що не стосуються цих двох користувачів.
+""",
+    responses={
+        200: {
+            "description": "Список повідомлень між користувачами",
+            "model": list[MessageRead]
+        },
+        401: {"description": "Неавторизований запит (немає або неправильний токен)"},
+        404: {"description": "Повідомлень з цим користувачем не знайдено (повертає порожній список)"},
+    },
+)
 def get_messages(
         user_id: int,
         db: Session = Depends(get_db),
